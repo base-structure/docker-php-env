@@ -1,0 +1,61 @@
+version: '3'
+services:
+    nginx:
+        image: nginx:latest
+        ports:
+            - "8089:80"
+        depends_on:
+            - "php"
+        volumes:
+            - "$PWD/docker/conf.d:/etc/nginx/conf.d"
+            - "$PWD/docker/logs:/var/log/nginx"
+            - "$PWD/www:/usr/share/nginx/html"
+        networks:
+            - app_drupal
+        container_name: "drupal-nginx"
+    php:
+        build: ./docker/php
+        image: php:7.2-fpm-drupal
+        depends_on:
+            - mysql
+        ports:
+            - "9000:9000"
+        volumes:
+            - "$PWD/www:/var/www/html"
+        networks:
+            - app_drupal
+        container_name: "drupal-php"
+    mysql:
+        image: mysql:5.7
+        ports:
+            - "3307:3306"
+        volumes:
+            - "$PWD/docker/.data:/var/lib/mysql"
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=drupal
+            - MYSQL_USER=drupal
+            - MYSQL_PASSWORD=drupal
+        networks:
+            app_drupal:
+                ipv4_address: 10.10.10.1
+        container_name: "drupal-mysql"
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        ports:
+            - "8090:80"
+        environment:
+          MYSQL_USER: "drupal"
+          MYSQL_PASSWORD: "drupal"
+          MYSQL_ROOT_PASSWORD: "root"
+          PMA_HOST: drupal-mysql
+        networks:
+            - app_drupal
+        container_name: drupal-admin
+
+networks:
+    app_drupal:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 10.10.0.0/16
