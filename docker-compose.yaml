@@ -26,6 +26,32 @@ services:
         networks:
             - app_drupal
         container_name: "drupal-php"
+    nginx2:
+        image: nginx:latest
+        ports:
+            - "8088:80"
+        depends_on:
+            - "php2"
+        volumes:
+            - "$PWD/docker/sy/conf.d:/etc/nginx/conf.d"
+            - "$PWD/docker/sy/logs:/var/log/nginx"
+            - "$PWD/sydemo:/usr/share/nginx/html"
+        networks:
+            - app_drupal
+        container_name: "drupal-nginx-sydemo"
+    php2:
+        build: ./docker/php
+        image: php:7.2-fpm-drupal
+        depends_on:
+            - mysql
+        ports:
+            - "9001:9000"
+        volumes:
+            - "$PWD/sydemo:/var/www/html"
+            - "$PWD/docker/sy/php/php.ini:/usr/local/etc/php/php.ini:rw"
+        networks:
+            - app_drupal
+        container_name: "drupal-php-sydemo"
     mysql:
         image: mysql:5.7
         ports:
