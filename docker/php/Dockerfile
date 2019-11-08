@@ -18,10 +18,9 @@ RUN apt-get update \
     && docker-php-ext-install pdo pdo_mysql \
     && docker-php-ext-install mysqli && docker-php-ext-enable mysqli \
     && docker-php-ext-install intl \
-    && curl -sS https://getcomposer.org/installer \
-        | php -- --install-dir=/usr/local/bin --filename=composer \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer config -g repo.packagist composer https://packagist.phpcomposer.com \
-
-    && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 COPY php.ini /usr/local/etc/php/
